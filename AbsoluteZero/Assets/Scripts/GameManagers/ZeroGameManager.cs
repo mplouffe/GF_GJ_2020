@@ -25,8 +25,6 @@ public class ZeroGameManager : MonoBehaviour
 
     private GameState gameState;
 
-    private Transform player;
-
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -39,8 +37,6 @@ public class ZeroGameManager : MonoBehaviour
         }
 
         DontDestroyOnLoad(gameObject);
-
-        // player = FindObjectOfType<PlayerManager>().transform;
     }
 
     // Start is called before the first frame update
@@ -70,7 +66,7 @@ public class ZeroGameManager : MonoBehaviour
         SceneManager.LoadScene(1);
         screenFader?.CrossFadeAlpha(0f, fadeDelay, true);
         yield return new WaitForSeconds(fadeDelay);
-        PlayerManager.EnablePlayer(true);
+        // PlayerManager.EnablePlayer(true);
         gameState = GameState.Playing;
     }
 

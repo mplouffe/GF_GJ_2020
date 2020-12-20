@@ -8,12 +8,13 @@ public class PlayerConversion : GameObjectConversionSystem
 {
     protected override void OnUpdate()
     {
-        Entities.ForEach((PlayerAuthoring playerAuthoring) =>
-        {
-            var entity = GetPrimaryEntity(playerAuthoring);
+        Entities
+            .ForEach((PlayerAuthoring playerAuthoring) =>
+            {
+                var entity = GetPrimaryEntity(playerAuthoring);
 
-            
-        });
+                DstEntityManager.AddComponent(entity, typeof(MovementComponent));
+            });
     }
 
 }
