@@ -23,8 +23,6 @@ public class CameraFollowSystem : SystemBase
         var localPlayerTranslation = GetComponent<Translation>(localPlayerEntity);
         var cameraFollowComponent = GetComponent<CameraFollowComponent>(localPlayerEntity);
 
-
-
         Entities
             .WithAll<Camera>()
             .WithoutBurst()

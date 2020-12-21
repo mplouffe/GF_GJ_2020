@@ -19,6 +19,8 @@ public class ZeroGameManager : MonoBehaviour
 {
     public static ZeroGameManager Instance;
 
+    public bool IsGameOver;
+
     [SerializeField] private Image screenFader;
     [SerializeField] private float fadeDelay = 2f;
     [SerializeField] private float gameEndDelay = 5f;
@@ -39,34 +41,48 @@ public class ZeroGameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    public void GameOver()
+    {
+        gameState = GameState.Loading;
+        StartCoroutine(LoadGameOverRoutine());
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         gameState = GameState.Loading;
-        StartCoroutine(LoadMainMenuRoutine());
+        StartCoroutine(FirstLoadRoutine());
     }
 
-    private IEnumerator LoadMainMenuRoutine()
-    {
-        yield return StartCoroutine(LoadMenuRoutine());
-    }
-
-    private IEnumerator LoadMenuRoutine()
+    private IEnumerator FirstLoadRoutine()
     {
         screenFader?.CrossFadeAlpha(0f, fadeDelay, true);
         yield return new WaitForSeconds(fadeDelay);
         gameState = GameState.Menu;
     }
 
+    private IEnumerator LoadMainMenuRoutine()
+    {
+        gameState = GameState.Loading;
+        screenFader?.CrossFadeAlpha(1f, fadeDelay, true);
+        yield return new WaitForSeconds(fadeDelay);
+        SceneManager.LoadScene(0);
+        screenFader?.CrossFadeAlpha(0f, fadeDelay, true);
+        yield return new WaitForSeconds(fadeDelay);
+        gameState = GameState.Menu;
+    }
+
+
     private IEnumerator LoadMainGameRoutine()
     {
         gameState = GameState.Loading;
         screenFader?.CrossFadeAlpha(1f, fadeDelay, true);
         yield return new WaitForSeconds(fadeDelay);
+        DeleteAllEntities();
         SceneManager.LoadScene(1);
+        IsGameOver = false;
         screenFader?.CrossFadeAlpha(0f, fadeDelay, true);
         yield return new WaitForSeconds(fadeDelay);
-        // PlayerManager.EnablePlayer(true);
         gameState = GameState.Playing;
     }
 
@@ -76,7 +92,7 @@ public class ZeroGameManager : MonoBehaviour
         screenFader?.CrossFadeAlpha(1f, fadeDelay, true);
         yield return new WaitForSeconds(fadeDelay);
         DeleteAllEntities();
-        SceneManager.LoadScene(3);
+        SceneManager.LoadScene(2);
         screenFader?.CrossFadeAlpha(0f, fadeDelay, true);
         yield return new WaitForSeconds(fadeDelay);
         gameState = GameState.Over;
@@ -113,12 +129,7 @@ public class ZeroGameManager : MonoBehaviour
     private void DeleteAllEntities()
     {
         var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-        var entityArray = entityManager.GetAllEntities();
-        foreach (var entity in entityArray)
-        {
-            entityManager.DestroyEntity(entity);
-        }
-        entityArray.Dispose();
+        entityManager.DestroyEntity(entityManager.UniversalQuery);
     }
 
     // Update is called once per frame
@@ -129,45 +140,15 @@ public class ZeroGameManager : MonoBehaviour
             return;
         }
 
-        var gamepad = Gamepad.current;
-        if (gamepad != null)
-        {
-            if (gamepad.buttonSouth.wasPressedThisFrame)
-            {
-                switch (gameState)
-                {
-                    case GameState.Menu:
-                        StartCoroutine(LoadMainGameRoutine());
-                        break;
-                    case GameState.Playing:
-                        StartCoroutine(LoadDeadRoutine());
-                        break;
-                }
-            }
-
-            if (gamepad.buttonNorth.wasPressedThisFrame)
-            {
-                switch (gameState)
-                {
-                    case GameState.Playing:
-                        StartCoroutine(LoadGameOverRoutine());
-                        break;
-                }
-            }
-        }
-
         var keyboard = Keyboard.current;
         if (keyboard != null)
         {
-            if (keyboard.aKey.wasPressedThisFrame)
+            if (keyboard.spaceKey.wasPressedThisFrame)
             {
                 switch (gameState)
                 {
                     case GameState.Menu:
                         StartCoroutine(LoadMainGameRoutine());
-                        break;
-                    case GameState.Playing:
-                        StartCoroutine(LoadDeadRoutine());
                         break;
                 }
             }

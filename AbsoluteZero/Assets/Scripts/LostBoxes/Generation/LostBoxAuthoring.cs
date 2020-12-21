@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraProxyAuthoring : MonoBehaviour
+public class LostBoxAuthoring : MonoBehaviour
 {
-    public Camera MainCamera;
+    //
 }

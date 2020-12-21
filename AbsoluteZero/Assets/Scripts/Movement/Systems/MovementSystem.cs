@@ -27,7 +27,7 @@ public class MovementSystem : SystemBase
                     }
                     else
                     {
-                        translation.Value += (movementComponent.moveDirection * 1f);
+                        translation.Value += (movementComponent.moveDirection * 0.75f);
                     }
                     movementComponent.moveRequested = false;
                 }
