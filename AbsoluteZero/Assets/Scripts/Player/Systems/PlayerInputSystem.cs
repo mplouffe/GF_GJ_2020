@@ -16,21 +16,11 @@ public enum MoveDirection
 [UpdateBefore(typeof(MovementSystem))]
 public class PlayerInputSystem : SystemBase
 {
-
-    private Gamepad m_gamepad;
-    private bool m_gamepadActive = false;
-
     private Keyboard m_keyboard;
     private bool m_keyboardActive = false;
 
     protected override void OnUpdate()
     {
-        if (m_gamepad != Gamepad.current)
-        {
-            // gamepad has changed, update it
-            m_gamepad = Gamepad.current;
-            m_gamepadActive = m_gamepad != null ? m_gamepad.enabled : false;
-        }
 
         if (m_keyboard != Keyboard.current)
         {
@@ -39,27 +29,9 @@ public class PlayerInputSystem : SystemBase
             m_keyboardActive = m_keyboard != null ? m_keyboard.enabled : false;
         }
 
-        var gamepadEnabled = m_gamepad.enabled;
         var keyboardEnabled = m_keyboard.enabled;
 
         MoveDirection direction = MoveDirection.None;
-
-        if (m_gamepad.dpad.up.wasPressedThisFrame)
-        {
-            direction = MoveDirection.Forward;
-        }
-        else if (m_gamepad.dpad.down.wasPressedThisFrame)
-        {
-            direction = MoveDirection.Backward;
-        }
-        else if (m_gamepad.dpad.right.wasPressedThisFrame)
-        {
-            direction = MoveDirection.Right;
-        }
-        else if (m_gamepad.dpad.left.wasPressedThisFrame)
-        {
-            direction = MoveDirection.Left;
-        }
 
         if (m_keyboard.upArrowKey.wasPressedThisFrame)
         {
