@@ -16,7 +16,7 @@ public class GameWinSystem : SystemBase
             })
         .Run();
 
-        if (totalBoxesReturned == 1 && !ZeroGameManager.Instance.IsGameOver)
+        if (totalBoxesReturned == 3 && !ZeroGameManager.Instance.IsGameOver)
         {
             ZeroGameManager.Instance.IsGameOver = true;
             ZeroGameManager.Instance?.GameOver();

@@ -25,6 +25,14 @@ public class ZeroGameManager : MonoBehaviour
     [SerializeField] private float fadeDelay = 2f;
     [SerializeField] private float gameEndDelay = 5f;
 
+    [SerializeField] private AudioSource source;
+
+    [SerializeField] private AudioClip StartMenuMusic;
+    [SerializeField] private AudioClip StartGameMusic;
+    [SerializeField] private AudioClip GameMusic;
+    [SerializeField] private AudioClip YouWinMusic;
+    [SerializeField] private AudioClip TheEndMusic;
+
     private GameState gameState;
 
     private void Awake()
@@ -56,6 +64,10 @@ public class ZeroGameManager : MonoBehaviour
 
     private IEnumerator FirstLoadRoutine()
     {
+        source.clip = StartMenuMusic;
+        source.time = 0;
+        source.loop = true;
+        source.Play();
         screenFader?.CrossFadeAlpha(0f, fadeDelay, true);
         yield return new WaitForSeconds(fadeDelay);
         gameState = GameState.Menu;
@@ -63,10 +75,19 @@ public class ZeroGameManager : MonoBehaviour
 
     private IEnumerator LoadMainMenuRoutine()
     {
-        gameState = GameState.Loading;
+        if (source.isPlaying)
+        {
+            StartCoroutine(AudioFadeOut.FadeOut(source, fadeDelay - 0.5f));
+        }
         screenFader?.CrossFadeAlpha(1f, fadeDelay, true);
         yield return new WaitForSeconds(fadeDelay);
+        DeleteAllEntities();
         SceneManager.LoadScene(0);
+        gameState = GameState.Loading;
+        source.clip = StartMenuMusic;
+        source.time = 0;
+        source.loop = true;
+        source.Play();
         screenFader?.CrossFadeAlpha(0f, fadeDelay, true);
         yield return new WaitForSeconds(fadeDelay);
         gameState = GameState.Menu;
@@ -75,11 +96,35 @@ public class ZeroGameManager : MonoBehaviour
 
     private IEnumerator LoadMainGameRoutine()
     {
+        // Show setupscreen
         gameState = GameState.Loading;
+        if (source.isPlaying)
+        {
+            StartCoroutine(AudioFadeOut.FadeOut(source, fadeDelay - 0.5f));
+        }
+        screenFader?.CrossFadeAlpha(1f, fadeDelay, true);
+        yield return new WaitForSeconds(fadeDelay);
+        SceneManager.LoadScene(1);
+        source.clip = StartGameMusic;
+        source.time = 0;
+        source.Play();
+        screenFader?.CrossFadeAlpha(0f, fadeDelay, true);
+        yield return new WaitForSeconds(gameEndDelay);
+
+
+        // load game
+        if (source.isPlaying)
+        {
+            StartCoroutine(AudioFadeOut.FadeOut(source, fadeDelay - 0.5f));
+        }
         screenFader?.CrossFadeAlpha(1f, fadeDelay, true);
         yield return new WaitForSeconds(fadeDelay);
         DeleteAllEntities();
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(2);
+        source.clip = GameMusic;
+        source.time = 0;
+        source.loop = true;
+        source.Play();
         IsGameOver = false;
         screenFader?.CrossFadeAlpha(0f, fadeDelay, true);
         yield return new WaitForSeconds(fadeDelay);
@@ -88,42 +133,53 @@ public class ZeroGameManager : MonoBehaviour
 
     private IEnumerator LoadGameOverRoutine()
     {
+        // Load win screen
         gameState = GameState.Loading;
+        if (source.isPlaying)
+        {
+            StartCoroutine(AudioFadeOut.FadeOut(source, fadeDelay - 0.5f));
+        }
         screenFader?.CrossFadeAlpha(1f, fadeDelay, true);
         yield return new WaitForSeconds(fadeDelay);
         DeleteAllEntities();
-        SceneManager.LoadScene(2);
+        SceneManager.LoadScene(3);
         screenFader?.CrossFadeAlpha(0f, fadeDelay, true);
         yield return new WaitForSeconds(fadeDelay);
+        source.clip = YouWinMusic;
+        source.time = 0;
+        source.loop = false;
+        source.Play();
+        yield return new WaitForSeconds(fadeDelay);
+        if (source.isPlaying)
+        {
+            StartCoroutine(AudioFadeOut.FadeOut(source, fadeDelay - 0.5f));
+        }
+        screenFader?.CrossFadeAlpha(1f, fadeDelay, true);
+        yield return new WaitForSeconds(fadeDelay);
+        SceneManager.LoadScene(4);
+        screenFader?.CrossFadeAlpha(0f, fadeDelay, true);
+        yield return new WaitForSeconds(fadeDelay);
+        source.clip = TheEndMusic;
+        source.time = 0;
+        source.loop = false;
+        source.Play();
         gameState = GameState.Over;
-        yield return new WaitForSeconds(gameEndDelay);
+        yield return new WaitForSeconds(fadeDelay);
         gameState = GameState.Loading;
+        if (source.isPlaying)
+        {
+            StartCoroutine(AudioFadeOut.FadeOut(source, fadeDelay - 0.5f));
+        }
         screenFader?.CrossFadeAlpha(1f, fadeDelay, true);
         yield return new WaitForSeconds(fadeDelay);
         SceneManager.LoadScene(0);
         screenFader?.CrossFadeAlpha(0f, fadeDelay, true);
         yield return new WaitForSeconds(fadeDelay);
         gameState = GameState.Menu;
-    }
-
-    private IEnumerator LoadDeadRoutine()
-    {
-        gameState = GameState.Loading;
-        screenFader?.CrossFadeAlpha(1f, fadeDelay, true);
-        yield return new WaitForSeconds(fadeDelay);
-        DeleteAllEntities();
-        SceneManager.LoadScene(2);
-        screenFader?.CrossFadeAlpha(0f, fadeDelay, true);
-        yield return new WaitForSeconds(fadeDelay);
-        gameState = GameState.Dead;
-        yield return new WaitForSeconds(gameEndDelay);
-        gameState = GameState.Loading;
-        screenFader?.CrossFadeAlpha(1f, fadeDelay, true);
-        yield return new WaitForSeconds(fadeDelay);
-        SceneManager.LoadScene(0);
-        screenFader?.CrossFadeAlpha(0f, fadeDelay, true);
-        yield return new WaitForSeconds(fadeDelay);
-        gameState = GameState.Menu;
+        source.clip = StartMenuMusic;
+        source.time = 0;
+        source.loop = true;
+        source.Play();
     }
 
     private void DeleteAllEntities()
@@ -163,6 +219,7 @@ public class ZeroGameManager : MonoBehaviour
                     case GameState.Playing:
                     case GameState.Over:
                     case GameState.Dead:
+                        StopAllCoroutines();
                         StartCoroutine(LoadMainMenuRoutine());
                         break;
                 }
